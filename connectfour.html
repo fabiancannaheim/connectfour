@@ -89,22 +89,6 @@
         return node
     }
 
-    function randomBoard(board, states) {
-        setInterval(function() {
-            let row = randomInteger(0, NUM_ROWS - 1)
-            let col = randomInteger(0, NUM_COLS - 1)
-            board[row][col] = states[Math.floor(Math.random() * states.length)]
-            game.innerHTML = ''
-            showBoard(board)
-        }, 1000)
-    }
-
-    function randomInteger(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
     function won(board) {
         let won = false
         let dismantledBoard = dismantleBoard(board)
