@@ -42,7 +42,7 @@
     })
 
     function showBoard(states) {
-        clear()
+        game.innerHTML = ''
         let board = elt('div', {'class': 'board'})
         game.appendChild(board)
         states.forEach(function(row, ri) {
@@ -52,9 +52,17 @@
                 board.appendChild(elt('div', {'class': 'field', 'data-row': ri, 'data-col': ci}, piece))
             })
         })
+        if (won(state.board)) {
+            setTimeout(() => {
+                let winner = state.turn.player[state.turn.index] === 'r' ? "Blue" : "Red"
+                alert(`${winner} has won`)
+                state.board.forEach(r => r.fill(EMPTY))
+                showBoard(state.board)
+            }, 1)
+        }
         let fields = document.querySelectorAll(".field")
         fields.forEach(function(f) {
-            f.addEventListener("click", function() {
+            f.addEventListener("click", async function () {
                 let col = parseInt(this.dataset['col'])
                 for (let i = NUM_ROWS - 1; i >= 0; i--) {
                     if (state.board[i][col] === EMPTY) {
@@ -86,7 +94,7 @@
             let row = randomInteger(0, NUM_ROWS - 1)
             let col = randomInteger(0, NUM_COLS - 1)
             board[row][col] = states[Math.floor(Math.random() * states.length)]
-            clear()
+            game.innerHTML = ''
             showBoard(board)
         }, 1000)
     }
@@ -97,12 +105,46 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function setTurn() {
-
+    function won(board) {
+        let won = false
+        let dismantledBoard = dismantleBoard(board)
+        dismantledBoard.forEach(function(b) {
+            b.forEach(function(s) {
+                let last = []
+                s.forEach(function(v) {
+                    last.push(v)
+                    if (v !== '' && last.length > 3) {
+                        let slice = last.slice(-4)
+                        if (slice.every(x => x === last[last.length - 1])) {
+                            won = true
+                        }
+                    }
+                })
+            })
+        })
+        return won
     }
 
-    function clear() {
-        game.innerHTML = ''
+    function dismantleBoard(board) {
+        let rows = []
+        let cols = []
+        let diag = []
+        for (let i = 0; i < NUM_ROWS; i++) {
+            rows.push(board[i])
+        }
+        for (let i = 0; i < NUM_COLS; i++) {
+            let col = []
+            for (let j = 0; j < NUM_ROWS; j++) {
+                col.push(board[j][i])
+                if (diag[i + j] === undefined) {
+                    diag[i + j] = [board[j][i]]
+                } else {
+                    diag[i + j].push(board[j][i])
+                }
+            }
+            cols.push(col)
+        }
+        return [rows, cols, diag]
     }
 
 </script>
