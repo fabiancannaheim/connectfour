@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Connect Four</title>
+    <style>
+        div {
+            box-sizing: border-box;
+        }
+        .board {
+            width: 84vw;
+            margin: auto;
+            outline: 1px solid black;
+        }
+        .board .field {
+            border: 1px solid black;
+            width: 12vw;
+            height: 12vw;
+            float: left;
+            /*display: none;*/
+        }
+        .board .field:first-child {
+            display: block;
+        }
+        .board .field .piece {
+            width: 10vw;
+            height: 10vw;
+            border-radius: 50%;
+            margin: 1vw;
+        }
+        .board .field .blue {
+            background-color: blue;
+        }
+        .board .field .red {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+</body>
+<script>
+
+    const NUM_ROWS = 6
+    const NUM_COLS = 7
+
+    const EMPTY = ''
+    const RED = 'r'
+    const BLUE = 'b'
+    const STATES = [EMPTY, RED, BLUE]
+
+    let pieceCount = 0
+
+    let board = Array(NUM_ROWS).fill(EMPTY).map(() => Array(NUM_COLS).fill(EMPTY))
+
+    document.addEventListener("DOMContentLoaded", function() {
+        showBoard(board)
+        fieldClickable()
+    });
+
+    function showBoard(fields) {
+        let board = elt('div', {'class': 'board'})
+        document.body.appendChild(board)
+        fields.forEach(function(row) {
+            row.forEach(function(field) {
+                if (field !== '') {
+                    let piece = document.createElement("div")
+                    if (field === 'r') {
+                        piece.setAttribute("class", 'piece red')
+                    } else if (field === 'b') {
+                        piece.setAttribute("class", 'piece blue')
+                    }
+                    board.appendChild(elt('div', {'class': 'field'}, piece))
+                } else {
+                    board.appendChild(elt('div', {'class': 'field'}))
+                }
+            })
+        })
+    }
+
+    function fieldClickable() {
+        let fields = document.querySelectorAll(".field")
+        fields.forEach(function(e) {
+            e.addEventListener("click", function() {
+                let piece = document.createElement("div")
+                piece.setAttribute("class", `piece ${STATES[pieceCount]}`)
+                this.innerHTML = ""
+                this.appendChild(piece)
+                pieceCount = (pieceCount + 1) % 3
+            })
+        })
+    }
+
+    function elt (type, attrs, ...children) {
+        let node = document.createElement(type)
+        for (let a in attrs) {
+            node.setAttribute(a, attrs[a])
+        }
+        for (let child of children) {
+            if (typeof child !== "string") node.appendChild(child)
+            else node.appendChild(document.createTextNode(child))
+        }
+        return node
+    }
+
+    function randomBoard(board, states) {
+        setInterval(function() {
+            let row = randomInteger(0, NUM_ROWS - 1)
+            let col = randomInteger(0, NUM_COLS - 1)
+            board[row][col] = states[Math.floor(Math.random() * states.length)]
+            clearBody()
+            showBoard(board)
+        }, 1000)
+    }
+
+    function randomInteger(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function clearBody() {
+        document.body.innerHTML = ''
+    }
+
+</script>
+</html>
