@@ -28,10 +28,10 @@
             border-radius: 50%;
             margin: 1vw;
         }
-        .board .field .blue {
+        .board .field .b {
             background-color: blue;
         }
-        .board .field .red {
+        .board .field .r {
             background-color: red;
         }
     </style>
@@ -51,42 +51,42 @@
 
     let pieceCount = 0
 
-    let board = Array(NUM_ROWS).fill(EMPTY).map(() => Array(NUM_COLS).fill(EMPTY))
-
-    document.addEventListener("DOMContentLoaded", function() {
-        showBoard(board)
-        fieldClickable()
-    });
-
-    function showBoard(fields) {
-        let board = elt('div', {'class': 'board'})
-        document.body.appendChild(board)
-        fields.forEach(function(row) {
-            row.forEach(function(field) {
-                if (field !== '') {
-                    let piece = document.createElement("div")
-                    if (field === 'r') {
-                        piece.setAttribute("class", 'piece red')
-                    } else if (field === 'b') {
-                        piece.setAttribute("class", 'piece blue')
-                    }
-                    board.appendChild(elt('div', {'class': 'field'}, piece))
-                } else {
-                    board.appendChild(elt('div', {'class': 'field'}))
-                }
-            })
-        })
+    let state = {
+        board: Array(NUM_ROWS).fill(EMPTY).map(() => Array(NUM_COLS).fill(EMPTY)),
+        turn: {
+            index: 0,
+            player: [RED, BLUE]
+        }
     }
 
-    function fieldClickable() {
-        let fields = document.querySelectorAll(".field")
-        fields.forEach(function(e) {
-            e.addEventListener("click", function() {
+    document.addEventListener("DOMContentLoaded", function() {
+        run()
+    });
+
+    async function run() {
+        await showBoard(state.board)
+    }
+
+    async function showBoard(states) {
+        clear()
+        let board = elt('div', {'class': 'board'})
+        document.body.appendChild(board)
+        states.forEach(function(row, ri) {
+            row.forEach(function(field, ci) {
                 let piece = document.createElement("div")
-                piece.setAttribute("class", `piece ${STATES[pieceCount]}`)
-                this.innerHTML = ""
-                this.appendChild(piece)
+                piece.setAttribute("class", `piece ${field}`)
+                board.appendChild(elt('div', {'class': 'field', 'data-row': ri, 'data-col': ci}, piece))
+            })
+        })
+        let fields = document.querySelectorAll(".field")
+        fields.forEach(function(f) {
+            f.addEventListener("click", function() {
+                let row = parseInt(this.dataset['row'])
+                let col = parseInt(this.dataset['col'])
+                state.board[row][col] = state.turn.player[state.turn.index]
+                state.turn.index = (state.turn.index + 1) % 2
                 pieceCount = (pieceCount + 1) % 3
+                showBoard(state.board)
             })
         })
     }
@@ -108,7 +108,7 @@
             let row = randomInteger(0, NUM_ROWS - 1)
             let col = randomInteger(0, NUM_COLS - 1)
             board[row][col] = states[Math.floor(Math.random() * states.length)]
-            clearBody()
+            clear()
             showBoard(board)
         }, 1000)
     }
@@ -119,7 +119,7 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function clearBody() {
+    function clear() {
         document.body.innerHTML = ''
     }
 
